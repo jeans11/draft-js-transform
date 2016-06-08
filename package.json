@@ -1,0 +1,28 @@
+{
+  "name": "draft-js-parser",
+  "version": "1.0.0",
+  "description": "Draft.js polymorphic parser",
+  "main": "lib/index.js",
+  "scripts": {
+    "start":"babel src --out-dir lib --ignore='__tests__'",
+    "test": "jest --verbose"
+  },
+  "keywords": [
+    "draft",
+    "draftjs",
+    "parser"
+  ],
+  "author": "jeans",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-cli": "^6.9.0",
+    "babel-core": "^6.9.1",
+    "babel-jest": "^12.1.0",
+    "babel-plugin-syntax-flow": "^6.8.0",
+    "babel-plugin-transform-flow-strip-types": "^6.8.0",
+    "babel-plugin-transform-object-rest-spread": "^6.8.0",
+    "babel-preset-es2015": "^6.9.0",
+    "flow-bin": "^0.26.0",
+    "jest-cli": "^12.1.1"
+  }
+}
