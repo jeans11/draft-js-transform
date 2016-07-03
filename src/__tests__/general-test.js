@@ -12,6 +12,12 @@ describe("Draft js parser | General tests", () => {
     expect(parser(htmlMapping)).toThrow()
   })
 
+  it("parser should have raw with block and entityMap", () => {
+    const htmlParser = parser(htmlMapping)
+    const data = {}
+    expect(() => htmlParser(data)).toThrow()
+  })
+
   it("Type block should be found in mapping object", () => {
     const data = {
       blocks: [{
@@ -20,7 +26,7 @@ describe("Draft js parser | General tests", () => {
       }]
     }
     const htmlParser = parser(htmlMapping)
-    expect(htmlParser).toThrow()
+    expect(() => htmlParser(data)).toThrow()
   })
 
   it("Inline style should be found in mapping object", () => {
@@ -36,7 +42,7 @@ describe("Draft js parser | General tests", () => {
       }]
     }
     const htmlParser = parser(htmlMapping)
-    expect(htmlParser).toThrow()
+    expect(() => htmlParser(data)).toThrow()
   })
 })
 

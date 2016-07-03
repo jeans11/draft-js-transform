@@ -1,15 +1,273 @@
+/* @flow */
+
+import type {RawDraftContentState, InlineStyleRange} from "draft-js"
+
+import compose from "./utils/compose"
+import type {Mapping} from "./types/Mapping"
+import type {StylingText} from "./types/StylingText"
+import type {FormatingText} from "./types/FormatingText"
+import type {ParserState} from "./types/ParserState"
+
+/**
+ * Retrieve the text who are inline style
+ * @param {Array<InlineStyleRange>} Array of inline style
+ * @return {Function} A function to map inline style
+ */
+function getStylingText(
+  inlineStyleRanges: Array<InlineStyleRange> = []
+): (textBlock: string) => Array<StylingText> {
+  return (textBlock = "") => inlineStyleRanges.map(item => {
+    const { length, offset, style } = item
+    const text = textBlock.substring(offset, offset + length)
+
+    return {
+      styles: [ style ],
+      offset,
+      text,
+      length
+    }
+  })
+}
+
+/**
+ * Because a target text can have multiple style on a same offset. This function
+ * allow to pack the style whish have the same offset and sort the item
+ * @param {Array<StylingText>} Array of styling text
+ * @return {Array<StylingText>} Sorting and dedupe array
+ */
+function dedupe(
+  stylingText = []
+): Array<StylingText> {
+  return stylingText.reduce((acc: Array<StylingText>, item: StylingText) => {
+    const duplicates = acc.filter(duplicate => (
+      duplicate.offset === item.offset && duplicate.length === item.length
+    ))
+    const withoutDuplicates = acc.filter(style => (
+      style.offset !== item.offset || (
+        style.offset === item.offset && style.length !== item.length
+      )
+    ))
+    if (duplicates.length !== 0) {
+      const styleDuplicates = duplicates.map(duplicate => duplicate.styles)
+      const mergeStyle = [].concat.apply(item.styles, styleDuplicates)
+      item = {
+        ...item,
+        styles: mergeStyle
+      }
+    }
+    acc = [
+      ...withoutDuplicates,
+      item
+    ]
+    return acc
+  }, [])
+
+  // Sort asc array
+  .concat().sort((a, b) => {
+    if (b.offset > a.offset) {
+      return -1
+    } else if (
+        (b.offset === a .offset && b.length > a.length)
+        ||
+        b.offset < a.offset
+    ) {
+      return 1
+    }
+  })
+}
+
+/**
+ * Apply the inline style to the part of text block
+ * @param {Mapping} Structure mapping
+ * @return {Function} A function to create formatingText
+ */
+function applyStyle(
+  mapping: Mapping
+): (stylingText: Array<StylingText>) => Array<FormatingText> {
+  return (stylingText = []) => stylingText.map(item => {
+    const { text, styles, offset } = item
+    const textFormat = styles.reduce((acc, format) => {
+      const formatMapping = format.toLowerCase()
+      const inlineStyleMapping = mapping.inlineStyle[formatMapping]
+
+      if (!inlineStyleMapping) {
+        throw new Error(`
+          ${ formatMapping } inline style doesn't exists. Please verify your
+          mapping object
+        `)
+      }
+
+      return inlineStyleMapping(acc)
+    }, text)
+    return {
+      offset,
+      plainText: text,
+      textFormat
+    }
+  })
+}
+
+/**
+ * Create a new text block with the inline style applied on part of text
+ * @param {String} Text of block
+ * @return {Function} A function for inline style formating
+ */
+function createInlineStyleBlock(
+  text: string = ""
+): (styleWithFormat: Array<FormatingText>) => string {
+
+  return (styleWithFormat = []) => {
+
+    function replace(
+      text: string,
+      replaceText: string,
+      offsetStart: number,
+      offsetEnd: number
+    ): string {
+      const start = text.substring(0, offsetStart)
+      const end = text.substring(offsetEnd)
+      return start + replaceText + end
+    }
+
+    function defaultState(
+      text: string
+    ): ParserState {
+      return {
+        text,
+        refItem: null,
+        shiftOffsetTotal: 0,
+        shiftOffsetNeested: {
+          start: 0,
+          total: 0
+        }
+      }
+    }
+
+    const applyStyleWithFormat = styleWithFormat.reduce(
+      (state: ParserState, item: FormatingText, index, array) => {
+
+        const { offset, textFormat, plainText } = item
+        const { refItem, shiftOffsetNeested, shiftOffsetTotal } = state
+
+        const reg = new RegExp(`(.*)${ plainText }(.*)`)
+        const matcher = textFormat.match(reg)
+        const shiftStart = matcher && matcher[1].length
+
+        // First formating
+        if (!refItem) {
+
+          return {
+            refItem: item,
+            text: replace(state.text, textFormat, offset, offset + plainText.length),
+            shiftOffsetTotal: textFormat.length - plainText.length,
+            shiftOffsetNeested: {
+              start: shiftStart,
+              total: shiftStart
+            }
+          }
+
+        } else {
+
+          const {
+            offset: refOffset,
+            textFormat: refTextFormat,
+            plainText: refPlainText
+          } = refItem
+
+          const {
+            offset: beforeOffset,
+            textFormat: beforeTextFormat,
+            plainText: beforePlainText
+          } = array[index - 1]
+
+          let newOffset
+
+          // The current item is neested to the ref item
+          if (offset >= refOffset && offset < refOffset + refPlainText.length) {
+
+            // The current item is before the before item
+            if (offset > beforeOffset && offset >= beforeOffset + beforePlainText.length) {
+              newOffset = offset + shiftOffsetNeested.total
+
+            // The current item is neested into the before item
+            } else {
+              newOffset = offset + shiftOffsetNeested.start
+            }
+
+            return {
+              ...state,
+              text: replace(state.text, textFormat, newOffset, newOffset + plainText.length),
+              shiftOffsetTotal: shiftOffsetTotal + (textFormat.length - plainText.length),
+              shiftOffsetNeested: {
+                start: shiftOffsetNeested.start + shiftStart,
+                total: shiftOffsetNeested.total + textFormat.length - plainText.length
+              }
+            }
+
+          // The current item is after the ref item
+          } else {
+            newOffset = shiftOffsetTotal + offset
+            const newShifOffsetTotal = shiftOffsetTotal + shiftStart
+
+            return {
+              refItem: item,
+              text: replace(state.text, textFormat, newOffset, newOffset + plainText.length),
+              shiftOffsetTotal: shiftOffsetTotal + (textFormat.length - plainText.length),
+              shiftOffsetNeested: {
+                start: newShifOffsetTotal,
+                total: newShifOffsetTotal
+              }
+            }
+          }
+        }
+      }, defaultState(text)
+    )
+
+    return applyStyleWithFormat.text
+  }
+}
+
+/**
+ * Allow handle list bock
+ * @param {Mapping} The mapping structure
+ * @param {Object} The after block
+ * @param {Number} the number of list item
+ * @return {Function}
+ */
+function handleListBlock(mapping: Mapping, afterBlock, nb) {
+  const start = mapping.block["unordered-list-start"]
+  const end = mapping.block["unordered-list-end"]
+  let res
+
+  if (nb === 0) {
+    if (afterBlock && afterBlock.type === "unordered-list-item") {
+      res = start
+    } else {
+      res = (text) => end(start(text))
+    }
+  } else {
+    if (!afterBlock || afterBlock.type !== "unordered-list-item") {
+      res = end
+    } else {
+      res = (text) => text
+    }
+  }
+
+  return res
+}
+
 /**
  * Draftjs parser
  * @param {Object} structure mapping
  * @return {Function}
  */
-export function parser(mapping) {
+export function parser(mapping: Mapping) {
 
   if (typeof mapping !== "object") {
     throw new Error("Expected the mapping to be an object")
   }
 
-  return function(raw) {
+  return (raw: RawDraftContentState) => {
     if (typeof raw !== "object") {
       throw new Error(`
         Expected the raw to be an object. Use 'convertToRaw' function
@@ -32,10 +290,14 @@ export function parser(mapping) {
 
       // Ok, there are inline style
       if (inlineStyleRanges && inlineStyleRanges.length > 0) {
-        const stylingText  = getStylingText(inlineStyleRanges, text)
-        const dedupeStylingText = dedupe(stylingText)
-        const styleWithFormat = applyStyle(dedupeStylingText, mapping)
-        textWithInlineStyle = createInlineStyleBlock(text, styleWithFormat)
+        const inlineStyleComposer = compose(
+          createInlineStyleBlock(text),
+          applyStyle(mapping),
+          dedupe,
+          getStylingText(inlineStyleRanges)
+        )
+
+        textWithInlineStyle = inlineStyleComposer(text)
       }
 
       const mappingTypeBlock = mapping.block[type]
@@ -69,233 +331,4 @@ export function parser(mapping) {
       return contentBlock
     }).join("")
   }
-}
-
-/**
- * Retrieve the text who are inline style
- * @param {Array} inline styles
- * @param {String} text of block
- * @return {Array}
- */
-function getStylingText(inlineStyleRanges, textBlock) {
-  return inlineStyleRanges.map(item => {
-    const { length, offset, style } = item
-    const text = textBlock.substring(offset, offset + length)
-
-    return {
-      offset,
-      style: [ style ],
-      text,
-      length
-    }
-  })
-}
-
-/**
- * Because a target text can have multiple style on a same offset. This function
- * allow to pack the style whish have the same offset and sort the item
- * @param {Array} Inline style of block
- * @return {Array} Inline style
- */
-function dedupe(stylingText) {
-  return stylingText.reduce((acc, item) => {
-    const duplicates = acc.filter(duplicate => (
-      duplicate.offset === item.offset && duplicate.length === item.length
-    ))
-    const withoutDuplicates = acc.filter(style => (
-      style.offset !== item.offset || (
-        style.offset === item.offset && style.length !== item.length
-      )
-    ))
-    if (duplicates.length !== 0) {
-      const styleDuplicates = duplicates.map(duplicate => duplicate.style)
-      const mergeStyle = [].concat.apply(item.style, styleDuplicates)
-      item = {
-        ...item,
-        style: mergeStyle
-      }
-    }
-    acc = [
-      ...withoutDuplicates,
-      item
-    ]
-    return acc
-  }, [])
-
-  // Sort asc array
-  .concat().sort((a, b) => {
-    if (b.offset > a.offset) {
-      return -1
-    } else if (
-        (b.offset === a .offset && b.length > a.length)
-        ||
-        b.offset < a.offset
-    ) {
-      return 1
-    }
-  })
-}
-
-/**
- * Apply the inline style to the part of text block
- * @param {Array} Inline style
- * @param {Object} Structure mapping for apply inline style
- */
-function applyStyle(array, mapping) {
-  return array.map(item => {
-    const { text, style, offset } = item
-    const textFormat = style.reduce((acc, format) => {
-      const formatMapping = format.toLowerCase()
-      const inlineStyleMapping = mapping.inlineStyle[formatMapping]
-
-      if (!inlineStyleMapping) {
-        throw new Error(`
-          ${ formatMapping } inline style doesn't exists. Please verify your
-          mapping object
-        `)
-      }
-
-      return inlineStyleMapping(acc)
-    }, text)
-    return {
-      offset,
-      plainText: text,
-      textFormat
-    }
-  })
-}
-
-/**
- * Create a new text block with the inline style applied on part of text
- * @param {String} Text of block
- * @param {Array} Inline style formated
- */
-function createInlineStyleBlock(text, styleWithFormat) {
-
-  function replace(text, replaceText, offsetStart, offsetEnd) {
-    const start = text.substring(0, offsetStart)
-    const end = text.substring(offsetEnd)
-    return start + replaceText + end
-  }
-
-  function defaultState(text) {
-    return {
-      text,
-      refItem: null,
-      shiftOffsetTotal: 0,
-      shiftOffsetNeested: {
-        start: 0,
-        end: 0
-      }
-    }
-  }
-
-  const applyStyleWithFormat = styleWithFormat.reduce((state, item, index, array) => {
-
-    const { offset, textFormat, plainText } = item
-    const { refItem, shiftOffsetNeested, shiftOffsetTotal } = state
-
-    const reg = new RegExp(`(.*)${ plainText }(.*)`)
-    const matcher = textFormat.match(reg)
-    const shiftStart = matcher[1].length
-
-    // First formating
-    if (!refItem) {
-
-      return {
-        refItem: item,
-        text: replace(state.text, textFormat, offset, offset + plainText.length),
-        shiftOffsetTotal: textFormat.length - plainText.length,
-        shiftOffsetNeested: {
-          start: shiftStart,
-          total: shiftStart
-        }
-      }
-
-    } else {
-
-      const {
-        offset: refOffset,
-        textFormat: refTextFormat,
-        plainText: refPlainText
-      } = refItem
-
-      const {
-        offset: beforeOffset,
-        textFormat: beforeTextFormat,
-        plainText: beforePlainText
-      } = array[index - 1]
-
-      let newOffset
-
-      // The current item is neested to the ref item
-      if (offset >= refOffset && offset < refOffset + refPlainText.length) {
-
-        // The current item is before the before item
-        if (offset > beforeOffset && offset >= beforeOffset + beforePlainText.length) {
-          newOffset = offset + shiftOffsetNeested.total
-
-        // The current item is neested into the before item
-        } else {
-          newOffset = offset + shiftOffsetNeested.start
-        }
-
-        return {
-          ...state,
-          text: replace(state.text, textFormat, newOffset, newOffset + plainText.length),
-          shiftOffsetTotal: shiftOffsetTotal + (textFormat.length - plainText.length),
-          shiftOffsetNeested: {
-            start: shiftOffsetNeested.start + shiftStart,
-            total: shiftOffsetNeested.total + textFormat.length - plainText.length
-          }
-        }
-
-      // The current item is after the ref item
-      } else {
-        newOffset = shiftOffsetTotal + offset
-        const newShifOffsetTotal = shiftOffsetTotal + shiftStart
-
-        return {
-          refItem: item,
-          text: replace(state.text, textFormat, newOffset, newOffset + plainText.length),
-          shiftOffsetTotal: shiftOffsetTotal + (textFormat.length - plainText.length),
-          shiftOffsetNeested: {
-            start: newShifOffsetTotal,
-            total: newShifOffsetTotal
-          }
-        }
-      }
-    }
-  }, defaultState(text))
-
-  return applyStyleWithFormat.text
-}
-
-/**
- * Allow handle list bock
- * @param {Object} The mapping structure
- * @param {Object} The after block
- * @param {Number} the number of list item
- * @return {Function}
- */
-function handleListBlock(mapping, afterBlock, nb) {
-  const start = mapping.block["unordered-list-start"]
-  const end = mapping.block["unordered-list-end"]
-  let res
-
-  if (nb === 0) {
-    if (afterBlock && afterBlock.type === "unordered-list-item") {
-      res = start
-    } else {
-      res = (text) => end(start(text))
-    }
-  } else {
-    if (!afterBlock || afterBlock.type !== "unordered-list-item") {
-      res = end
-    } else {
-      res = (text) => text
-    }
-  }
-
-  return res
 }

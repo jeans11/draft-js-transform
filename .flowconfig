@@ -1,0 +1,12 @@
+[ignore]
+./src/__tests__
+.*/node_modules/fbjs.*
+.*/node_modules/babel.*
+./examples
+
+[include]
+./src
+
+[libs]
+
+[options]
