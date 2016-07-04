@@ -4,8 +4,9 @@
   "description": "Draft.js polymorphic parser",
   "main": "lib/index.js",
   "scripts": {
-    "start": "babel src --out-dir lib --ignore='__tests__'",
-    "test": "flow check && jest --verbose"
+    "start": "rm -Rf lib && babel src --out-dir lib --ignore='__tests__'",
+    "test": "flow check && jest --verbose",
+    "pub": "npm test && npm start && npm publish"
   },
   "keywords": [
     "draft",
