@@ -10,7 +10,7 @@ Parser for convert Draftjs ContentState.
 // mappings.js
 
 // Simple HTML mapping
-export const htmlMapping = {
+export const htmlMapping: Mapping = {
   inlineStyle: {
     italic: (text) => `<em>${ text }</em>`,
     bold: (text) => `<strong>${ text }</strong>`,
@@ -22,7 +22,7 @@ export const htmlMapping = {
 }
 
 // Simple TeX mapping
-export const texMapping = {
+export const texMapping: Mapping = {
   inlineStyle: {
     italic: (text) => `\textit{${ text }}`,
     bold: (text) => `\textbf{${ text }}`,
@@ -34,7 +34,7 @@ export const texMapping = {
 }
 
 // Or dummy mapping
-export const dummyMapping = {
+export const dummyMapping: Mapping = {
   inlineStyle: {
     italic: (text) => `__i${ text }|i__`,
     bold: (text) => `__b${ text }|b__`,
@@ -52,21 +52,31 @@ import { parser } from "draft-js-parser"
 import { htmlMapping, texMapping, dummyMapping } from "./mappings"
 
 // Ok, let's create a HTML parser
-const htmlParser = parser(htmlMapping)
+const htmlParser: DraftjsParser = parser(htmlMapping)
 
 // Ok, let's create a TeX parser
-const texParser = parser(texMapping)
+const texParser: DraftjsParser = parser(texMapping)
 
 // Ok, let's create a dummy parser
-const dummyParser = parser(dummyMapping)
+const dummyParser: DraftjsParser = parser(dummyMapping)
 
 // Draftjs have 'convertToRaw' function whish allow to export Draftjs ContentState
 // to a simple Javascript object
 const raw = convertToRaw(...)
 
 // And parse...
-const htmlString = htmlParser(raw)
-const texString = texParser(raw)
-const dummyString = dummyParser(raw)
+const htmlString: string = htmlParser(raw)
+const texString: string = texParser(raw)
+const dummyString: string = dummyParser(raw)
 ```
+
+# Road map
+
+- Update the list parsing for matching with Markdown
+- Add other feature
+- Add more test ^^
+
+# Contributing
+
+Pull requests are always welcome :)
 

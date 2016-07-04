@@ -1,12 +1,13 @@
 /* @flow */
 
-import type {RawDraftContentState, InlineStyleRange} from "draft-js"
+import type {InlineStyleRange} from "draft-js"
 
 import compose from "./utils/compose"
 import type {Mapping} from "./types/Mapping"
 import type {StylingText} from "./types/StylingText"
 import type {FormatingText} from "./types/FormatingText"
 import type {ParserState} from "./types/ParserState"
+import type {DraftjsParser} from "./types/DraftjsParser"
 
 /**
  * Retrieve the text who are inline style
@@ -258,16 +259,18 @@ function handleListBlock(mapping: Mapping, afterBlock, nb) {
 
 /**
  * Draftjs parser
- * @param {Object} structure mapping
- * @return {Function}
+ * @param {Mapping} Structure mapping
+ * @return {Function} A function to parse Draftjs content state
  */
-export function parser(mapping: Mapping) {
+export function parser(
+  mapping: Mapping
+): DraftjsParser {
 
   if (typeof mapping !== "object") {
     throw new Error("Expected the mapping to be an object")
   }
 
-  return (raw: RawDraftContentState) => {
+  return (raw) => {
     if (typeof raw !== "object") {
       throw new Error(`
         Expected the raw to be an object. Use 'convertToRaw' function
