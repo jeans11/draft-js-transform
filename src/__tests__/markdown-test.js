@@ -2,8 +2,8 @@ jest.autoMockOff()
 
 describe("Draft js transform | Test Markdown mapping", () => {
   const transform = require("../index").transform
-  const markdownMapping = require("../../examples/markdownMapping").default
-  const markdownTransform = transform(markdownMapping)
+  const markdownOutputer = require("../../examples/markdownOutputer").default
+  const markdownTransform = transform(markdownOutputer)
 
   it("Transform simple structure", () => {
     const data = {

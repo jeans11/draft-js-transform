@@ -3,7 +3,7 @@
 import type {InlineStyleRange} from "draft-js"
 
 import compose from "./utils/compose"
-import type {Mapping} from "./types/Mapping"
+import type {Outputer} from "./types/Outputer"
 import type {StylingText} from "./types/StylingText"
 import type {FormatingText} from "./types/FormatingText"
 import type {TransformState} from "./types/TransformState"
@@ -79,26 +79,26 @@ function dedupe(
 
 /**
  * Apply the inline style to the part of text block
- * @param {Mapping} Structure mapping
+ * @param {Outputer} Structure to output
  * @return {Function} A function to create formatingText
  */
 function applyStyle(
-  mapping: Mapping
+  outputer: Outputer
 ): (stylingText: Array<StylingText>) => Array<FormatingText> {
   return (stylingText = []) => stylingText.map(item => {
     const { text, styles, offset } = item
     const textFormat = styles.reduce((acc, format) => {
-      const formatMapping = format.toLowerCase()
-      const inlineStyleMapping = mapping.inlineStyle[formatMapping]
+      const formatOutputer = format.toLowerCase()
+      const inlineStyleOutputer = outputer.inlineStyle[formatOutputer]
 
-      if (!inlineStyleMapping) {
+      if (!inlineStyleOutputer) {
         throw new Error(`
-          ${ formatMapping } inline style doesn't exists. Please verify your
+          ${ formatOutputer } inline style doesn't exists. Please verify your
           mapping object
         `)
       }
 
-      return inlineStyleMapping(acc)
+      return inlineStyleOutputer(acc)
     }, text)
     return {
       offset,
@@ -230,12 +230,12 @@ function createInlineStyleBlock(
 
 /**
  * Allow handle list bock
- * @param {Mapping} The mapping structure
+ * @param {Outputer} The mapping structure
  * @param {Object} The after block
  * @param {Number} the number of list item
  * @return {Function}
  */
-function handleListBlock(mapping: Mapping, afterBlock, nb) {
+function handleListBlock(mapping: Outputer, afterBlock, nb) {
   const start = mapping.block["unordered-list-start"]
   const end = mapping.block["unordered-list-end"]
   let res
@@ -259,11 +259,11 @@ function handleListBlock(mapping: Mapping, afterBlock, nb) {
 
 /**
  * Draftjs transform
- * @param {Mapping} Structure mapping
+ * @param {Outputer} Structure mapping
  * @return {Function} A function to transform Draftjs content state
  */
 export function transform(
-  mapping: Mapping
+  mapping: Outputer
 ): DraftjsTransform {
 
   if (typeof mapping !== "object") {

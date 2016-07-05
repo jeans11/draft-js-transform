@@ -2,8 +2,8 @@ jest.autoMockOff()
 
 describe("Draft js transform | Test TeX mapping", () => {
   const transform = require("../index").transform
-  const texMapping = require("../../examples/texMapping").default
-  const texTransform = transform(texMapping)
+  const texOutputer = require("../../examples/texOutputer").default
+  const texTransform = transform(texOutputer)
 
   it("Transform simple structure", () => {
     const data = {

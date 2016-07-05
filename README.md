@@ -4,13 +4,13 @@ A librairie for transform Draftjs ContentState.
 
 # How to use
 
-## Create your own mapping
+## Create your own outputer
 
 ```javascript
 // mappings.js
 
-// Simple HTML mapping
-export const htmlMapping: Mapping = {
+// Simple HTML output
+export const htmlOutputer: Outputer = {
   inlineStyle: {
     italic: (text) => `<em>${ text }</em>`,
     bold: (text) => `<strong>${ text }</strong>`,
@@ -22,7 +22,7 @@ export const htmlMapping: Mapping = {
 }
 
 // Simple TeX mapping
-export const texMapping: Mapping = {
+export const texOutputer: Outputer = {
   inlineStyle: {
     italic: (text) => `\textit{${ text }}`,
     bold: (text) => `\textbf{${ text }}`,
@@ -34,7 +34,7 @@ export const texMapping: Mapping = {
 }
 
 // Or dummy mapping
-export const dummyMapping: Mapping = {
+export const dummyOutputer: Outputer = {
   inlineStyle: {
     italic: (text) => `__i${ text }|i__`,
     bold: (text) => `__b${ text }|b__`,
@@ -49,16 +49,16 @@ export const dummyMapping: Mapping = {
 
 ```javascript
 import { transform } from "draft-js-transform"
-import { htmlMapping, texMapping, dummyMapping } from "./mappings"
+import { htmlOutputer, texOutputer, dummyOutputer } from "./mappings"
 
 // Ok, let's create a HTML transform
-const htmlTransform: DraftjsTransform = transform(htmlMapping)
+const htmlTransform: DraftjsTransform = transform(htmlOutputer)
 
 // Ok, let's create a TeX transform
-const texTransform: DraftjsTransform = transform(texMapping)
+const texTransform: DraftjsTransform = transform(texOutputer)
 
 // Ok, let's create a dummy transform
-const dummyTransform: DraftjsTransform = transform(dummyMapping)
+const dummyTransform: DraftjsTransform = transform(dummyOutputer)
 
 // Draftjs have 'convertToRaw' function whish allow to export Draftjs ContentState
 // to a simple Javascript object
