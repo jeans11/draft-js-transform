@@ -1,6 +1,6 @@
-# Draftjs parser
+# Draftjs transform
 
-Parser for convert Draftjs ContentState.
+A librairie for transform Draftjs ContentState.
 
 # How to use
 
@@ -45,29 +45,29 @@ export const dummyMapping: Mapping = {
   }
 }
 ```
-## And get the right parser
+## And transform
 
 ```javascript
-import { parser } from "draft-js-parser"
+import { transform } from "draft-js-transform"
 import { htmlMapping, texMapping, dummyMapping } from "./mappings"
 
-// Ok, let's create a HTML parser
-const htmlParser: DraftjsParser = parser(htmlMapping)
+// Ok, let's create a HTML transform
+const htmltransform: DraftjsTransform = transform(htmlMapping)
 
-// Ok, let's create a TeX parser
-const texParser: DraftjsParser = parser(texMapping)
+// Ok, let's create a TeX transform
+const textransform: DraftjsTransform = transform(texMapping)
 
-// Ok, let's create a dummy parser
-const dummyParser: DraftjsParser = parser(dummyMapping)
+// Ok, let's create a dummy transform
+const dummytransform: DraftjsTransform = transform(dummyMapping)
 
 // Draftjs have 'convertToRaw' function whish allow to export Draftjs ContentState
 // to a simple Javascript object
 const raw = convertToRaw(...)
 
-// And parse...
-const htmlString: string = htmlParser(raw)
-const texString: string = texParser(raw)
-const dummyString: string = dummyParser(raw)
+// And transform...
+const htmlString: string = htmlTransform(raw)
+const texString: string = texTransform(raw)
+const dummyString: string = dummyTransform(raw)
 ```
 
 # Road map

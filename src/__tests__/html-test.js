@@ -1,22 +1,22 @@
 jest.autoMockOff()
 
-describe("Draft js parser | Test HTML mapping", () => {
-  const parser = require("../index").parser
+describe("Draft js transform | Test HTML mapping", () => {
+  const transform = require("../index").transform
   const htmlMapping = require("../../examples/htmlMapping").default
-  const htmlParser = parser(htmlMapping)
+  const htmlTransform = transform(htmlMapping)
 
-  it("Parse simple structure", () => {
+  it("Transform simple structure", () => {
     const data = {
       blocks: [{
         text: "simple text structure",
         type: "unstyled"
       }]
     }
-    const htmlString = htmlParser(data)
+    const htmlString = htmlTransform(data)
     expect(htmlString).toBe("<p>simple text structure</p>")
   })
 
-  it("Parse structure with simple inline style", () => {
+  it("Transform structure with simple inline style", () => {
     const data = {
       blocks: [{
         text: "simple text structure",
@@ -28,11 +28,11 @@ describe("Draft js parser | Test HTML mapping", () => {
         }]
       }]
     }
-    const htmlString = htmlParser(data)
+    const htmlString = htmlTransform(data)
     expect(htmlString).toBe("<p>simple <strong>text</strong> structure</p>")
   })
 
-  it("Parse structure with multiple inline style on one word", () => {
+  it("Transform structure with multiple inline style on one word", () => {
     const data = {
       blocks: [{
         text: "simple text structure",
@@ -52,12 +52,12 @@ describe("Draft js parser | Test HTML mapping", () => {
         }]
       }]
     }
-    const htmlString = htmlParser(data)
+    const htmlString = htmlTransform(data)
     expect(htmlString)
       .toBe("<p>simple <strong><em><u>text</u></em></strong> structure</p>")
   })
 
-  it("Parse structure with multiple inline style on several words", () => {
+  it("Transform structure with multiple inline style on several words", () => {
     const data = {
       blocks: [{
         text: "simple text structure",
@@ -82,12 +82,12 @@ describe("Draft js parser | Test HTML mapping", () => {
         }]
       }]
     }
-    const htmlString = htmlParser(data)
+    const htmlString = htmlTransform(data)
     expect(htmlString)
       .toBe("<p>simple <strong><em><u>text</u></em></strong> <em>structure</em></p>")
   })
 
-  it("Parse structure with inline nested", () => {
+  it("Transform structure with inline nested", () => {
     const data = {
       blocks: [{
         text: "simple text structure with inline nested",
@@ -104,12 +104,12 @@ describe("Draft js parser | Test HTML mapping", () => {
         }]
       }]
     }
-    const htmlString = htmlParser(data)
+    const htmlString = htmlTransform(data)
     expect(htmlString)
       .toBe("<p>simple <strong>text structure <u>with</u> inline nested</strong></p>")
   })
 
-  it("Parse structure with inline nested (begin on first word)", () => {
+  it("Transform structure with inline nested (begin on first word)", () => {
     const data = {
       blocks: [{
         text: "simple text structure with inline nested",
@@ -129,12 +129,12 @@ describe("Draft js parser | Test HTML mapping", () => {
         }]
       }]
     }
-    const htmlString = htmlParser(data)
+    const htmlString = htmlTransform(data)
     expect(htmlString)
       .toBe("<p><strong>simple <em>text <u>structure with inline nested</u></em></strong></p>")
   })
 
-  it("Parse structure with multiple inline nested on multiple blocks (begin on first word)", () => {
+  it("Transform structure with multiple inline nested on multiple blocks (begin on first word)", () => {
     const data = {
       blocks: [{
         text: "simple text structure with inline nested",
@@ -194,12 +194,12 @@ describe("Draft js parser | Test HTML mapping", () => {
         }]
       }]
     }
-    const htmlString = htmlParser(data)
+    const htmlString = htmlTransform(data)
     expect(htmlString)
       .toBe("<p><strong>simple <em>text <u>structure </u></em></strong>with<strong><em><u> inline nested</u></em></strong></p><p><strong>simple <em>text <u>structure </u></em></strong>with<strong><em><u> inline nested</u></em></strong></p>")
   })
 
-  it("Parse complex text structure (begin on first word)", () => {
+  it("Transform complex text structure (begin on first word)", () => {
     const data = {
       blocks: [{
         text: "simple text structure with other text for create the new Game of trones !",
@@ -231,12 +231,12 @@ describe("Draft js parser | Test HTML mapping", () => {
         }]
       }]
     }
-    const htmlString = htmlParser(data)
+    const htmlString = htmlTransform(data)
     expect(htmlString)
       .toBe("<p><strong>simple <em>text</em> <u>structure</u> with</strong> other text <em>for create <u>the</u> new Game of <strong>trones</strong></em> !</p>")
   })
 
-  it("Parse complex text structure with list block type", () => {
+  it("Transform complex text structure with list block type", () => {
     const data = {
       blocks: [{
         text: "simple text structure with inline nested in element list block",
@@ -276,12 +276,12 @@ describe("Draft js parser | Test HTML mapping", () => {
         }]
       }]
     }
-    const htmlString = htmlParser(data)
+    const htmlString = htmlTransform(data)
     expect(htmlString)
       .toBe("<ul><li>simple <em>text <u>structure</u></em> with inline nested in <strong>element <u>list block</u></strong></li><li>Second <u>element</u></li><li>Third <em>element</em></li></ul>")
   })
 
-  it("Parse structure with simple atomic entity", () => {
+  it("Transform structure with simple atomic entity", () => {
     const data = {
       blocks: [{
         text: " ",
@@ -302,22 +302,22 @@ describe("Draft js parser | Test HTML mapping", () => {
         }
       }
     }
-    const htmlString = htmlParser(data)
+    const htmlString = htmlTransform(data)
     expect(htmlString).toBe(`<figure><div style="max-width:330px;margin:0 auto;"><img style="display:block;max-width:100%;" src="http://fifoo.media.jpeg" /></div></figure>`)
   })
 
-  it("Parse structure with header title", () => {
+  it("Transform structure with header title", () => {
     const data = {
       blocks: [{
         text: "Simple title",
         type: "header-one"
       }]
     }
-    const htmlString = htmlParser(data)
+    const htmlString = htmlTransform(data)
     expect(htmlString).toBe(`<h1>Simple title</h1>`)
   })
 
-  it("Parse structure with header title and inline style", () => {
+  it("Transform structure with header title and inline style", () => {
     const data = {
       blocks: [{
         text: "Simple title",
@@ -329,11 +329,11 @@ describe("Draft js parser | Test HTML mapping", () => {
         }]
       }]
     }
-    const htmlString = htmlParser(data)
+    const htmlString = htmlTransform(data)
     expect(htmlString).toBe(`<h1>Simple <strong>title</strong></h1>`)
   })
 
-  it("Parse structure with multiple header", () => {
+  it("Transform structure with multiple header", () => {
     const data = {
       blocks: [{
         text: "Header 1",
@@ -355,7 +355,7 @@ describe("Draft js parser | Test HTML mapping", () => {
         type: "header-six"
       }]
     }
-    const htmlString = htmlParser(data)
+    const htmlString = htmlTransform(data)
     expect(htmlString).toBe(`<h1>Header 1</h1><h2>Header 2</h2><h3>Header 3</h3><h4>Header 4</h4><h5>Header 5</h5><h6>Header 6</h6>`)
   })
 })

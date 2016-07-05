@@ -2,7 +2,7 @@
 
 import type {FormatingText} from "./FormatingText"
 
-export type ParserState = {
+export type TransformState = {
   text: string,
   refItem: ?FormatingText,
   shiftOffsetTotal: number,

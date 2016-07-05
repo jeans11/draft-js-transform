@@ -1,22 +1,22 @@
 jest.autoMockOff()
 
-describe("Draft js parser | Test custom mapping", () => {
-  const parser = require("../index").parser
+describe("Draft js transform | Test custom mapping", () => {
+  const transform = require("../index").transform
   const texMapping = require("../../examples/customMapping").default
-  const customParser = parser(texMapping)
+  const customTransform = transform(texMapping)
 
-  it("Parse simple structure", () => {
+  it("Transform simple structure", () => {
     const data = {
       blocks: [{
         text: "simple text structure",
         type: "unstyled"
       }]
     }
-    const htmlString = customParser(data)
+    const htmlString = customTransform(data)
     expect(htmlString).toBe("__psimple text structure|p__")
   })
 
-  it("Parse structure with simple inline style", () => {
+  it("Transform structure with simple inline style", () => {
     const data = {
       blocks: [{
         text: "simple text structure",
@@ -28,11 +28,11 @@ describe("Draft js parser | Test custom mapping", () => {
         }]
       }]
     }
-    const htmlString = customParser(data)
+    const htmlString = customTransform(data)
     expect(htmlString).toBe("__psimple __btext|b__ structure|p__")
   })
 
-  it("Parse structure with multiple inline style on one word", () => {
+  it("Transform structure with multiple inline style on one word", () => {
     const data = {
       blocks: [{
         text: "simple text structure",
@@ -52,7 +52,7 @@ describe("Draft js parser | Test custom mapping", () => {
         }]
       }]
     }
-    const htmlString = customParser(data)
+    const htmlString = customTransform(data)
     expect(htmlString)
       .toBe("__psimple __b__i__utext|u__|i__|b__ structure|p__")
   })

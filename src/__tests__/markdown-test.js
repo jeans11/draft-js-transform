@@ -1,22 +1,22 @@
 jest.autoMockOff()
 
-describe("Draft js parser | Test Markdown mapping", () => {
-  const parser = require("../index").parser
+describe("Draft js transform | Test Markdown mapping", () => {
+  const transform = require("../index").transform
   const markdownMapping = require("../../examples/markdownMapping").default
-  const markdownParser = parser(markdownMapping)
+  const markdownTransform = transform(markdownMapping)
 
-  it("Parse simple structure", () => {
+  it("Transform simple structure", () => {
     const data = {
       blocks: [{
         text: "simple text structure",
         type: "unstyled"
       }]
     }
-    const markdownString = markdownParser(data)
+    const markdownString = markdownTransform(data)
     expect(markdownString).toBe("    simple text structure")
   })
 
-  it("Parse structure with simple inline style", () => {
+  it("Transform structure with simple inline style", () => {
     const data = {
       blocks: [{
         text: "simple text structure",
@@ -28,11 +28,11 @@ describe("Draft js parser | Test Markdown mapping", () => {
         }]
       }]
     }
-    const markdownString = markdownParser(data)
+    const markdownString = markdownTransform(data)
     expect(markdownString).toBe("    simple **text** structure")
   })
 
-  it("Parse structure with multiple inline style on one word", () => {
+  it("Transform structure with multiple inline style on one word", () => {
     const data = {
       blocks: [{
         text: "simple text structure",
@@ -48,12 +48,12 @@ describe("Draft js parser | Test Markdown mapping", () => {
         }]
       }]
     }
-    const markdownString = markdownParser(data)
+    const markdownString = markdownTransform(data)
     expect(markdownString)
       .toBe("    simple **_text_** structure")
   })
 
-  it("Parse structure with multiple header", () => {
+  it("Transform structure with multiple header", () => {
     const data = {
       blocks: [{
         text: "Header 1",
@@ -75,7 +75,7 @@ describe("Draft js parser | Test Markdown mapping", () => {
         type: "header-six"
       }]
     }
-    const markdownString = markdownParser(data)
+    const markdownString = markdownTransform(data)
     expect(markdownString).toBe(`#Header 1##Header 2###Header 3####Header 4#####Header 5######Header 6`)
   })
 

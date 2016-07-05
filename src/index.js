@@ -6,8 +6,8 @@ import compose from "./utils/compose"
 import type {Mapping} from "./types/Mapping"
 import type {StylingText} from "./types/StylingText"
 import type {FormatingText} from "./types/FormatingText"
-import type {ParserState} from "./types/ParserState"
-import type {DraftjsParser} from "./types/DraftjsParser"
+import type {TransformState} from "./types/TransformState"
+import type {DraftjsTransform} from "./types/DraftjsTransform"
 
 /**
  * Retrieve the text who are inline style
@@ -132,7 +132,7 @@ function createInlineStyleBlock(
 
     function defaultState(
       text: string
-    ): ParserState {
+    ): TransformState {
       return {
         text,
         refItem: null,
@@ -145,7 +145,7 @@ function createInlineStyleBlock(
     }
 
     const applyStyleWithFormat = styleWithFormat.reduce(
-      (state: ParserState, item: FormatingText, index, array) => {
+      (state: TransformState, item: FormatingText, index, array) => {
 
         const { offset, textFormat, plainText } = item
         const { refItem, shiftOffsetNeested, shiftOffsetTotal } = state
@@ -258,13 +258,13 @@ function handleListBlock(mapping: Mapping, afterBlock, nb) {
 }
 
 /**
- * Draftjs parser
+ * Draftjs transform
  * @param {Mapping} Structure mapping
- * @return {Function} A function to parse Draftjs content state
+ * @return {Function} A function to transform Draftjs content state
  */
-export function parser(
+export function transform(
   mapping: Mapping
-): DraftjsParser {
+): DraftjsTransform {
 
   if (typeof mapping !== "object") {
     throw new Error("Expected the mapping to be an object")

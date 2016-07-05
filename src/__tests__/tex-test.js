@@ -1,22 +1,22 @@
 jest.autoMockOff()
 
-describe("Draft js parser | Test TeX mapping", () => {
-  const parser = require("../index").parser
+describe("Draft js transform | Test TeX mapping", () => {
+  const transform = require("../index").transform
   const texMapping = require("../../examples/texMapping").default
-  const texParser = parser(texMapping)
+  const texTransform = transform(texMapping)
 
-  it("Parse simple structure", () => {
+  it("Transform simple structure", () => {
     const data = {
       blocks: [{
         text: "simple text structure",
         type: "unstyled"
       }]
     }
-    const htmlString = texParser(data)
-    expect(htmlString).toBe("simple text structure")
+    const texString = texTransform(data)
+    expect(texString).toBe("simple text structure")
   })
 
-  it("Parse structure with simple inline style", () => {
+  it("Transform structure with simple inline style", () => {
     const data = {
       blocks: [{
         text: "simple text structure",
@@ -28,11 +28,11 @@ describe("Draft js parser | Test TeX mapping", () => {
         }]
       }]
     }
-    const htmlString = texParser(data)
-    expect(htmlString).toBe("simple \\textbf{text} structure")
+    const texString = texTransform(data)
+    expect(texString).toBe("simple \\textbf{text} structure")
   })
 
-  it("Parse structure with multiple inline style on one word", () => {
+  it("Transform structure with multiple inline style on one word", () => {
     const data = {
       blocks: [{
         text: "simple text structure",
@@ -52,8 +52,8 @@ describe("Draft js parser | Test TeX mapping", () => {
         }]
       }]
     }
-    const htmlString = texParser(data)
-    expect(htmlString)
+    const texString = texTransform(data)
+    expect(texString)
       .toBe("simple \\textbf{\\textit{\\underline{text}}} structure")
   })
 

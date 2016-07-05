@@ -1,7 +1,7 @@
 {
-  "name": "draft-js-parser",
+  "name": "draft-js-transform",
   "version": "1.0.0",
-  "description": "Draft.js polymorphic parser",
+  "description": "Lib for transform draft.js content state",
   "main": "lib/index.js",
   "scripts": {
     "start": "rm -Rf lib && babel src --out-dir lib --ignore='__tests__'",
@@ -11,7 +11,9 @@
   "keywords": [
     "draft",
     "draftjs",
-    "parser"
+    "draft-js",
+    "parser",
+    "transform"
   ],
   "author": "jeans",
   "license": "MIT",

@@ -1,21 +1,21 @@
 jest.autoMockOff()
 
-describe("Draft js parser | General tests", () => {
-  const parser = require("../index").parser
+describe("Draft js transform | General tests", () => {
+  const transform = require("../index").transform
   const htmlMapping = require("../../examples/htmlMapping").default
 
-  it("parser should be have a mapping object", () => {
-    expect(parser).toThrow()
+  it("transform should be have a mapping object", () => {
+    expect(transform).toThrow()
   })
 
-  it("parser(mapping) should be have a raw object", () => {
-    expect(parser(htmlMapping)).toThrow()
+  it("transform(mapping) should be have a raw object", () => {
+    expect(transform(htmlMapping)).toThrow()
   })
 
-  it("parser should have raw with block and entityMap", () => {
-    const htmlParser = parser(htmlMapping)
+  it("transform should have raw with block and entityMap", () => {
+    const htmlTransform = transform(htmlMapping)
     const data = {}
-    expect(() => htmlParser(data)).toThrow()
+    expect(() => htmlTransform(data)).toThrow()
   })
 
   it("Type block should be found in mapping object", () => {
@@ -25,8 +25,8 @@ describe("Draft js parser | General tests", () => {
         type: "fakeType"
       }]
     }
-    const htmlParser = parser(htmlMapping)
-    expect(() => htmlParser(data)).toThrow()
+    const htmlTransform = transform(htmlMapping)
+    expect(() => htmlTransform(data)).toThrow()
   })
 
   it("Inline style should be found in mapping object", () => {
@@ -41,8 +41,8 @@ describe("Draft js parser | General tests", () => {
         }]
       }]
     }
-    const htmlParser = parser(htmlMapping)
-    expect(() => htmlParser(data)).toThrow()
+    const htmlTransform = transform(htmlMapping)
+    expect(() => htmlTransform(data)).toThrow()
   })
 })
 
