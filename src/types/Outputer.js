@@ -1,6 +1,6 @@
 /* @flow */
 
-export type Mapping = {
+export type Outputer = {
   inlineStyle: {},
   block: {
     [key: any]: any

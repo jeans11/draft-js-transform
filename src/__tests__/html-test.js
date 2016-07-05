@@ -2,8 +2,8 @@ jest.autoMockOff()
 
 describe("Draft js transform | Test HTML mapping", () => {
   const transform = require("../index").transform
-  const htmlMapping = require("../../examples/htmlMapping").default
-  const htmlTransform = transform(htmlMapping)
+  const htmlOutputer = require("../../examples/htmlOutputer").default
+  const htmlTransform = transform(htmlOutputer)
 
   it("Transform simple structure", () => {
     const data = {
