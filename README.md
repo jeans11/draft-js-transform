@@ -52,13 +52,13 @@ import { transform } from "draft-js-transform"
 import { htmlMapping, texMapping, dummyMapping } from "./mappings"
 
 // Ok, let's create a HTML transform
-const htmltransform: DraftjsTransform = transform(htmlMapping)
+const htmlTransform: DraftjsTransform = transform(htmlMapping)
 
 // Ok, let's create a TeX transform
-const textransform: DraftjsTransform = transform(texMapping)
+const texTransform: DraftjsTransform = transform(texMapping)
 
 // Ok, let's create a dummy transform
-const dummytransform: DraftjsTransform = transform(dummyMapping)
+const dummyTransform: DraftjsTransform = transform(dummyMapping)
 
 // Draftjs have 'convertToRaw' function whish allow to export Draftjs ContentState
 // to a simple Javascript object
