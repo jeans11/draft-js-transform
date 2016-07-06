@@ -1,6 +1,6 @@
 # Draftjs transform
 
-A librairie for transform Draftjs ContentState.
+A library for transform Draftjs ContentState.
 
 # How to use
 
