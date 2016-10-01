@@ -8,6 +8,12 @@
     "test": "flow check && jest --verbose",
     "pub": "npm test && npm start && npm publish"
   },
+  "files": [
+    "lib",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
   "keywords": [
     "draft",
     "draftjs",
