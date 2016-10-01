@@ -17,6 +17,10 @@
   ],
   "author": "jeans",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:jeans11/draft-js-transform"
+  },
   "devDependencies": {
     "babel-cli": "^6.9.0",
     "babel-core": "^6.9.1",
