@@ -233,28 +233,34 @@ function createInlineStyleBlock(
  * @param {Outputer} The mapping structure
  * @param {Object} The after block
  * @param {Number} the number of list item
- * @return {Function}
+ * @return {Object}
  */
-function handleListBlock(mapping: Outputer, afterBlock, nb) {
+function handleListBlock(mapping: Outputer, afterBlock: Object, nb: number) {
   const start = mapping.block["unordered-list-start"]
   const end = mapping.block["unordered-list-end"]
-  let res
+  let listBlock
+  let nbElement = 0
 
   if (nb === 0) {
     if (afterBlock && afterBlock.type === "unordered-list-item") {
-      res = start
+      listBlock = start
+      nbElement = nb + 1
     } else {
-      res = (text) => end(start(text))
+      listBlock = (text) => end(start(text))
     }
   } else {
     if (!afterBlock || afterBlock.type !== "unordered-list-item") {
-      res = end
+      listBlock = end
     } else {
-      res = (text) => text
+      listBlock = (text) => text
+      nbElement = nb + 1
     }
   }
 
-  return res
+  return {
+    listBlock,
+    nbElement,
+  }
 }
 
 /**
@@ -314,10 +320,11 @@ export function transform(
       switch (type) {
         case "unordered-list-item":
           const afterBlock = array[index + 1]
-          contentBlock = handleListBlock(mapping, afterBlock, nbListElement)(
-            mappingTypeBlock(textWithInlineStyle)
-          )
-          nbListElement += 1
+
+          const { listBlock, nbElement } = handleListBlock(mapping, afterBlock, nbListElement)
+
+          contentBlock = listBlock(mappingTypeBlock(textWithInlineStyle))
+          nbListElement = nbElement
           break
         case "atomic":
           contentBlock = entityRanges.reduce((acc, item) => {

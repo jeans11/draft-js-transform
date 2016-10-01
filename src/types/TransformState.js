@@ -4,7 +4,7 @@ import type {FormatingText} from "./FormatingText"
 
 export type TransformState = {
   text: string,
-  refItem: ?FormatingText,
+  refItem: FormatingText | null,
   shiftOffsetTotal: number,
   shiftOffsetNeested: {
     start: ?number,

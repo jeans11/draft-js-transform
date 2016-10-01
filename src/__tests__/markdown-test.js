@@ -79,10 +79,29 @@ describe("Draft js transform | Test Markdown mapping", () => {
     expect(markdownString).toBe(`#Header 1##Header 2###Header 3####Header 4#####Header 5######Header 6`)
   })
 
+  it("Should render multiple list", () => {
+    const data = {
+      blocks: [{
+        text: "1,1",
+        type: "unordered-list-item",
+      }, {
+        text: "1,2",
+        type: "unordered-list-item",
+      }, {
+        text: "Test",
+        type: "unstyled",
+      }, {
+        text: "2,1",
+        type: "unordered-list-item",
+      }, {
+        text: "2,2",
+        type: "unordered-list-item",
+      }]
+    }
 
+    const markdownString = markdownTransform(data)
+
+    expect(markdownString).toBe(`\n* 1,1\n* 1,2\n    Test\n* 2,1\n* 2,2\n`)
+  })
 })
-
-
-
-
 

@@ -358,4 +358,29 @@ describe("Draft js transform | Test HTML mapping", () => {
     const htmlString = htmlTransform(data)
     expect(htmlString).toBe(`<h1>Header 1</h1><h2>Header 2</h2><h3>Header 3</h3><h4>Header 4</h4><h5>Header 5</h5><h6>Header 6</h6>`)
   })
+
+  it("Should render multiple list", () => {
+    const data = {
+      blocks: [{
+        text: "1,1",
+        type: "unordered-list-item",
+      }, {
+        text: "1,2",
+        type: "unordered-list-item",
+      }, {
+        text: "Test",
+        type: "unstyled",
+      }, {
+        text: "2,1",
+        type: "unordered-list-item",
+      }, {
+        text: "2,2",
+        type: "unordered-list-item",
+      }]
+    }
+
+    const htmlString = htmlTransform(data)
+
+    expect(htmlString).toBe("<ul><li>1,1</li><li>1,2</li></ul><p>Test</p><ul><li>2,1</li><li>2,2</li></ul>")
+  })
 })

@@ -11,6 +11,9 @@ export default {
     "header-three": (text) => `###${ text }`,
     "header-four": (text) => `####${ text }`,
     "header-five": (text) => `#####${ text }`,
-    "header-six": (text) => `######${ text }`
+    "header-six": (text) => `######${ text }`,
+    "unordered-list-start": (text) => `\n${ text }`,
+    "unordered-list-item": (text) => `* ${ text }\n`,
+    "unordered-list-end": (text) => text,
   }
 }
